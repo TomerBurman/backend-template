@@ -1,6 +1,6 @@
 ###
 
-GET http://localhost:3000/student
+GET http://localhost:3000/student?name=John33
 
 ###
 
@@ -9,14 +9,19 @@ Content-Type: application/json
 
 
 {
-    "name": "John33",
+    "name": "John334",
     "age": 230,
-    "_id": "020130400202"
+    "_id": "0201130400202"
 }
 
 ###
 
-PUT http://localhost:3000/student
+PUT http://localhost:3000/student/0201130400202
+Content-Type:application/json
+
+{
+    "name":"John332"
+}
 
 ###
 
