@@ -21,7 +21,11 @@ const getStudentById = async (req, res, next) => {
     console.log("student get by id");
     try{
         const student = await Student.findById(req.params.id);
-        res.status(200).send(student);
+        if (student){
+            res.status(200).send(student);
+        }else{
+            res.status(404).send("Student not found");
+        }
     }catch(error){
         res.status(400).send(error.message);
     }
@@ -44,11 +48,20 @@ const postStudent = async (req, res, next) => {
 const updateStudent = async (req, res, next) => {
     console.log(req.body);
     try{
-        const updatedStudent = await Student.findOneAndUpdate({_id:req.params.id}, req.body, {
+        const {_id, ...updatedFields} = req.body;
+        if(_id){
+            delete updatedFields._id;
+        }
+        const updatedStudent = await Student.findOneAndUpdate({_id:req.params.id}, updatedFields, {
             new: true
           });
+          if (updatedStudent){
         res.status(200).send(updatedStudent)
+          }else{
+            res.status(404).send("Student not found");
+          }
     }catch(error){
+        console.log(error)
         res.status(400).send(error.message);
     }
 
@@ -60,7 +73,11 @@ const deleteStudent = async (req, res, next) => {
         const deletedStudent = await Student.findOneAndDelete({_id:req.params.id}, req.body, {
             new:true
         });
-        res.status(200).send(deletedStudent);
+        if (deletedStudent){
+            res.status(200).send(deletedStudent);
+        }else{
+            res.status(404).send("Student not found");
+        }
     }catch(error){
         res.status(400).send(error.message);
     }
