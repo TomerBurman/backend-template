@@ -8,6 +8,7 @@ const app = (0, express_1.default)();
 const student_route_1 = __importDefault(require("./routes/student_route"));
 //const postRoute = require("./routes/post_route");
 const post_route_1 = __importDefault(require("./routes/post_route"));
+const auth_route_1 = __importDefault(require("./routes/auth_route"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -25,6 +26,7 @@ const initApp = () => {
                 app.use(body_parser_1.default.urlencoded({ extended: true }));
                 app.use("/student", student_route_1.default);
                 app.use("/post", post_route_1.default);
+                app.use("/auth", auth_route_1.default);
                 resolve(app);
             });
         }
