@@ -87,12 +87,13 @@ describe("Auth", () => {
         expect(res4.statusCode).not.toBe(200);
     }));
     test("refresh token violation", () => __awaiter(void 0, void 0, void 0, function* () {
-        const res = yield (0, supertest_1.default)(app)
+        const res = yield (0, supertest_1.default)(app).post("/auth/login").send(user);
+        const res3 = yield (0, supertest_1.default)(app)
             .get("/auth/refresh")
-            .set("Authorization", "Bearer " + refreshToken)
+            .set("Authorization", "Bearer " + res.body.refreshToken)
             .send();
-        console.log("Response " + res.body);
-        expect(res.statusCode).toBe(200);
+        console.log("Response " + res3.body);
+        expect(res3.statusCode).toBe(200);
         const oldRefreshToken = refreshToken;
         accessToken = res.body.accessToken;
         refreshToken = res.body.refreshToken;

@@ -7,15 +7,10 @@ export default class BaseController<ModelType> {
         this.model = model;
     }
     async get(req: Request, res: Response) {
-        console.log("Get students");
+        console.log("Get all items");
         try {
-            if (req.query.name) {
-                const item = await this.model.find({ name: req.query.name });
-                return res.status(200).send(item);
-            } else {
-                const item = await this.model.find();
-                return res.status(200).send(item);
-            }
+            const items = await this.model.find();
+            return res.status(200).send(items);
         } catch (error) {
             return res.status(400).send(error.message);
         }
@@ -38,7 +33,7 @@ export default class BaseController<ModelType> {
         console.log(req.body);
         try {
             const item = await this.model.create(req.body);
-            console.log(item);
+            console.log(item + "This is the item");
             res.status(201).send(item);
         } catch (error) {
             console.log(error);

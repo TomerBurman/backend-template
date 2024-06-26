@@ -14,6 +14,13 @@ const userSchema = new mongoose_1.default.Schema({
         required: true,
     },
     tokens: { type: [String] },
+    name: {
+        type: String,
+        required: true,
+    },
+    bio: {
+        type: String,
+    },
 });
 exports.default = mongoose_1.default.model("User", userSchema);
 //# sourceMappingURL=user_model.js.map

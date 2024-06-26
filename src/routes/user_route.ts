@@ -1,7 +1,7 @@
 import express from "express";
 
 const router = express.Router();
-import student_controller from "../controllers/student_controller";
+import user_controller from "../controllers/user_controller";
 import authMiddleware from "../common/auth_middleware";
 /**
  * @swagger
@@ -55,11 +55,7 @@ import authMiddleware from "../common/auth_middleware";
  *                              $ref: '#/components/schemas/Student'
  *
  */
-router.get(
-    "/",
-    authMiddleware,
-    student_controller.get.bind(student_controller)
-);
+router.get("/", authMiddleware, user_controller.get.bind(user_controller));
 /**
  * @swagger
  * /student/{id}:
@@ -87,12 +83,12 @@ router.get(
 router.get(
     "/:id",
     authMiddleware,
-    student_controller.getById.bind(student_controller)
+    user_controller.getById.bind(user_controller)
 );
 
 /**
  * @swagger
- *  /student:
+ *  /user:
  *    post:
  *      summary: 'Create a new student'
  *      tags: [Student]
@@ -112,19 +108,11 @@ router.get(
  *                      schema:
  *                          $ref: '#/components/schemas/Student'
  */
-router.post(
-    "/",
-    authMiddleware,
-    student_controller.post.bind(student_controller)
-);
-router.put(
-    "/:id",
-    authMiddleware,
-    student_controller.put.bind(student_controller)
-);
+router.post("/", authMiddleware, user_controller.post.bind(user_controller));
+router.put("/:id", authMiddleware, user_controller.put.bind(user_controller));
 router.delete(
     "/:id",
     authMiddleware,
-    student_controller.remove.bind(student_controller)
+    user_controller.remove.bind(user_controller)
 );
 export default router;

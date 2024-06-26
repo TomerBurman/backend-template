@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const user_model_1 = __importDefault(require("../models/user_model"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const uuidv4_1 = require("uuidv4");
+const uuid_1 = require("uuid");
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.body);
     const email = req.body.email;
@@ -40,6 +40,17 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(400).send(err.message);
     }
 });
+const generateToken = (userId) => {
+    const accessToken = jsonwebtoken_1.default.sign({
+        _id: userId,
+        jti: (0, uuid_1.v4)(),
+    }, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION });
+    const refreshToken = jsonwebtoken_1.default.sign({
+        _id: userId,
+        jti: (0, uuid_1.v4)(),
+    }, process.env.REFRESH_TOKEN_SECRET);
+    return { accessToken, refreshToken };
+};
 /**
  * searches for the user details in the database and creates an access token
  * and a refresh token, saves the refresh token in the database and returns the access token aswell as the refresh token
@@ -60,14 +71,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!valid) {
             return res.status(401).send("Invalid email or password");
         }
-        const accessToken = jsonwebtoken_1.default.sign({
-            _id: user._id,
-            jti: (0, uuidv4_1.uuid)(),
-        }, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION });
-        const refreshToken = jsonwebtoken_1.default.sign({
-            _id: user._id,
-            jti: (0, uuidv4_1.uuid)(),
-        }, process.env.REFRESH_TOKEN_SECRET);
+        const { accessToken, refreshToken } = generateToken(user._id.toString());
         if (user.tokens == null) {
             user.tokens = [refreshToken];
         }
@@ -75,10 +79,11 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             user.tokens.push(refreshToken);
         }
         yield user.save();
-        console.log("User has been saved successfully");
+        console.log("User has been logged in successfully");
         return res.status(200).send({
             accessToken: accessToken,
             refreshToken: refreshToken,
+            name: user.name,
         });
     }
     catch (err) {
@@ -88,16 +93,17 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const logout = (req, res) => {
     res.status(400).send("Logout");
+    console.log("Logout");
 };
 const refresh = (req, res) => {
     //extract token from http header
     const authHeader = req.headers["authorization"];
-    const refreshToken = authHeader && authHeader.split(" ")[1];
-    if (refreshToken == null) {
+    const origRefreshToken = authHeader && authHeader.split(" ")[1];
+    if (origRefreshToken == null) {
         return res.status(401).send("Missing token");
     }
     // verify token
-    jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, userInfo) => __awaiter(void 0, void 0, void 0, function* () {
+    jsonwebtoken_1.default.verify(origRefreshToken, process.env.REFRESH_TOKEN_SECRET, (err, userInfo) => __awaiter(void 0, void 0, void 0, function* () {
         if (err) {
             return res.status(401).send("invalid token");
         }
@@ -105,7 +111,7 @@ const refresh = (req, res) => {
             const user = yield user_model_1.default.findById(userInfo._id);
             if (user == null ||
                 user.tokens == null ||
-                !user.tokens.includes(refreshToken)) {
+                !user.tokens.includes(origRefreshToken)) {
                 if (user.tokens != null) {
                     user.tokens = [];
                     yield user.save();
@@ -113,21 +119,14 @@ const refresh = (req, res) => {
                 return res.status(401).send("Invalid token");
             }
             // generate new access token and refresh token
-            const newAccessToken = jsonwebtoken_1.default.sign({
-                _id: user._id,
-                jti: (0, uuidv4_1.uuid)(),
-            }, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION });
-            const newRefreshToken = jsonwebtoken_1.default.sign({
-                _id: user._id,
-                jti: (0, uuidv4_1.uuid)(),
-            }, process.env.REFRESH_TOKEN_SECRET);
+            const { accessToken, refreshToken } = generateToken(user._id.toString());
             // save the refresh token in the database
             user.tokens = user.tokens.filter((token) => token != refreshToken);
-            user.tokens.push(newRefreshToken);
+            user.tokens.push(refreshToken);
             // return the new access token and new refresh token
             return res.status(200).send({
-                accessToken: newAccessToken,
-                refreshToken: newRefreshToken,
+                accessToken: accessToken,
+                refreshToken: refreshToken,
             });
         }
         catch (err) {

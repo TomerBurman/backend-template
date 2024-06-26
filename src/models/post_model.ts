@@ -1,8 +1,13 @@
 import mongoose from "mongoose";
 
+/**
+ * IPost describes recipe of a dish.
+ */
 export interface IPost {
     title: string;
-    message: string;
+    ingridients: string[];
+    description: string;
+    steps: string[];
     owner: string;
 }
 const postSchema = new mongoose.Schema<IPost>({
@@ -10,7 +15,15 @@ const postSchema = new mongoose.Schema<IPost>({
         type: String,
         required: true,
     },
-    message: {
+    ingridients: {
+        type: [String],
+        required: true,
+    },
+    steps: {
+        type: [String],
+        required: true,
+    },
+    description: {
         type: String,
         required: true,
     },

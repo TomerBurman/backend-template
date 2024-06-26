@@ -13,8 +13,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const mongoose_1 = __importDefault(require("mongoose"));
 const body_parser_1 = __importDefault(require("body-parser"));
-// const mongoose = require("mongoose");
-//const bodyParser = require("body-parser");
 const initApp = () => {
     const promise = new Promise((resolve, reject) => {
         try {

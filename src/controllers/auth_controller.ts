@@ -21,6 +21,8 @@ const register = async (req: Request, res: Response) => {
         const newUser = await User.create({
             email: email,
             password: hashedPassword,
+            name: req.body.name,
+            bio: req.body.bio,
         });
         return res.status(200).send(newUser);
     } catch (err) {
@@ -77,10 +79,12 @@ const login = async (req: Request, res: Response) => {
             user.tokens.push(refreshToken);
         }
         await user.save();
-        console.log("User has been saved successfully");
+        console.log("User has been logged in successfully");
         return res.status(200).send({
             accessToken: accessToken,
             refreshToken: refreshToken,
+            name: user.name,
+            userId: user._id,
         });
     } catch (err) {
         console.log(err);
