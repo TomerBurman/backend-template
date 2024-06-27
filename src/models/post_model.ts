@@ -9,6 +9,8 @@ export interface IPost {
     description: string;
     steps: string[];
     owner: string;
+    images: string[];
+    ownerName: string;
 }
 const postSchema = new mongoose.Schema<IPost>({
     title: {
@@ -31,6 +33,8 @@ const postSchema = new mongoose.Schema<IPost>({
         type: String,
         required: true,
     },
+    images: { type: [String] },
+    ownerName: { type: String },
 });
 
 export default mongoose.model<IPost>("Post", postSchema);
