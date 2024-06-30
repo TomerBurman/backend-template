@@ -58,7 +58,7 @@ import authMiddleware from "../common/auth_middleware";
 router.get("/", authMiddleware, user_controller.get.bind(user_controller));
 /**
  * @swagger
- * /student/{id}:
+ * /user/{id}:
  *   get:
  *     summary: 'Get a student by ID'
  *     tags: [Student]

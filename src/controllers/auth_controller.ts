@@ -23,6 +23,7 @@ const register = async (req: Request, res: Response) => {
             password: hashedPassword,
             name: req.body.name,
             bio: req.body.bio,
+            image: req.body.image,
         });
         return res.status(200).send(newUser);
     } catch (err) {
