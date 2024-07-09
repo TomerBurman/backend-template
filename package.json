@@ -7,7 +7,7 @@
         "start": "copy .env_dev .env && tsc && node dist/src/Server.js",
         "dev": "copy .env_dev .env && nodemon ./src/Server.ts",
         "test": "copy .env_test .env && jest --detectOpenHandles --forceExit",
-        "testStudent": "copy .env_test .env && jest --detectOpenHandles --forceExit ./src/tests/student.test.ts",
+        "testUser": "copy .env_test .env && jest --detectOpenHandles --forceExit ./src/tests/user.test.ts",
         "testAuth": "copy .env_test .env && jest --detectOpenHandles --forceExit ./src/tests/auth.test.ts",
         "testPost": "copy .env_test .env && jest --detectOpenHandles --forceExit ./src/tests/post.test.ts",
         "lint": "eslint . --ext .ts"

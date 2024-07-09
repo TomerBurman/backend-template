@@ -21,6 +21,9 @@ const userSchema = new mongoose_1.default.Schema({
     bio: {
         type: String,
     },
+    image: {
+        type: String,
+    },
 });
 exports.default = mongoose_1.default.model("User", userSchema);
 //# sourceMappingURL=user_model.js.map

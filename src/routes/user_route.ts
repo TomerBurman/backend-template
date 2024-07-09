@@ -3,23 +3,25 @@ import express from "express";
 const router = express.Router();
 import user_controller from "../controllers/user_controller";
 import authMiddleware from "../common/auth_middleware";
+
 /**
  * @swagger
  * tags:
- *    name: Student
- *    description: The Authentication API
+ *    name: User
+ *    description: The User Management API
  */
 
 /**
  * @swagger
  * components:
  *  schemas:
- *    Student:
+ *    User:
  *      type: object
  *      required:
  *        - _id
  *        - name
- *        - age
+ *        - email
+ *        - password
  *      properties:
  *        _id:
  *          type: string
@@ -27,41 +29,54 @@ import authMiddleware from "../common/auth_middleware";
  *        name:
  *          type: string
  *          description: The user name
- *        age:
- *          type: number
- *          description: The user age
+ *        email:
+ *          type: string
+ *          description: The user email
+ *        password:
+ *          type: string
+ *          description: The user password
+ *        bio:
+ *          type: string
+ *          description: The user bio
+ *        image:
+ *          type: string
+ *          description: The user image
  *      example:
  *        _id: "12345"
  *        name: "john"
- *        age: "25"
+ *        email: "john@example.com"
+ *        password: "hashedpassword"
+ *        bio: "This is John's bio"
+ *        image: "john_image.png"
  */
 
 /**
  * @swagger
- *  /student/:
+ *  /user/:
  *    get:
- *      summary: get all students
- *      tags: [Student]
+ *      summary: Get all users
+ *      tags: [User]
  *      security:
  *          - bearerAuth: []
  *      responses:
  *          200:
- *              description: list of all students
+ *              description: List of all users
  *              content:
  *                  application/json:
  *                      schema:
  *                          type: array
  *                          items:
- *                              $ref: '#/components/schemas/Student'
+ *                              $ref: '#/components/schemas/User'
  *
  */
 router.get("/", authMiddleware, user_controller.get.bind(user_controller));
+
 /**
  * @swagger
  * /user/{id}:
  *   get:
- *     summary: 'Get a student by ID'
- *     tags: [Student]
+ *     summary: Get a user by ID
+ *     tags: [User]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -71,14 +86,14 @@ router.get("/", authMiddleware, user_controller.get.bind(user_controller));
  *         schema:
  *           type: string
  *           example: '123456'
- *         description: 'Unique ID of the student to retrieve'
+ *         description: Unique ID of the user to retrieve
  *     responses:
  *       200:
- *         description: student details
+ *         description: User details
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Student'
+ *               $ref: '#/components/schemas/User'
  */
 router.get(
     "/:id",
@@ -90,8 +105,8 @@ router.get(
  * @swagger
  *  /user:
  *    post:
- *      summary: 'Create a new student'
- *      tags: [Student]
+ *      summary: Create a new user
+ *      tags: [User]
  *      security:
  *          - bearerAuth: []
  *      requestBody:
@@ -99,20 +114,71 @@ router.get(
  *          content:
  *              application/json:
  *                  schema:
- *                      $ref: '#/components/schemas/Student'
+ *                      $ref: '#/components/schemas/User'
  *      responses:
  *          201:
- *              description: Student created successfully
+ *              description: User created successfully
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/Student'
+ *                          $ref: '#/components/schemas/User'
  */
 router.post("/", authMiddleware, user_controller.post.bind(user_controller));
-router.put("/:id", authMiddleware, user_controller.put.bind(user_controller));
+
+/**
+ * @swagger
+ * /user:
+ *   put:
+ *     summary: Update a user
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *       400:
+ *         description: Bad request
+ */
+router.put("/", authMiddleware, user_controller.put.bind(user_controller));
+
+/**
+ * @swagger
+ * /user/{id}:
+ *   delete:
+ *     summary: Delete a user
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: '123456'
+ *         description: Unique ID of the user to delete
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ */
 router.delete(
     "/:id",
     authMiddleware,
     user_controller.remove.bind(user_controller)
 );
+
 export default router;

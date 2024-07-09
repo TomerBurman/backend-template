@@ -52,7 +52,10 @@ describe("Post", () => {
     }));
     const post = {
         title: "This is the post title",
-        message: "This is the emessage...",
+        description: "This is the description",
+        ingredients: ["salt", "pepper", "cabbage"],
+        imgUrl: "http://localhost/images",
+        steps: ["No steps"],
         owner: "Moshe",
     };
     test("Post /post", () => __awaiter(void 0, void 0, void 0, function* () {

@@ -15,6 +15,11 @@ class PostController extends BaseController<IPost> {
         req.body = post;
         return super.post(req, res);
     }
+    async put(req: Request, res: Response) {
+        req.body = { ...req.body.post, _id: req.body.post._id };
+        console.log(req.body);
+        super.put(req, res);
+    }
 }
 
 export default new PostController();

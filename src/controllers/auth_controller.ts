@@ -7,6 +7,7 @@ import { v4 } from "uuid";
 const register = async (req: Request, res: Response) => {
     console.log(req.body);
     const email = req.body.email;
+    console.log(req.body);
     const password = req.body.password;
     if (email === null || password === null) {
         res.status(400).send("invalid details");
@@ -92,9 +93,26 @@ const login = async (req: Request, res: Response) => {
         return res.status(400).send(err.message);
     }
 };
-const logout = (req: Request, res: Response) => {
-    res.status(400).send("Logout");
-    console.log("Logout");
+const logout = async (req: Request, res: Response) => {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(400).send("Token missing");
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET) as {
+            _id: string;
+        };
+        const user = await User.findById(decoded._id);
+        if (!user || !user.tokens) {
+            return res.status(400).send("User not found or already logged out");
+        }
+        user.tokens = user.tokens.filter((t) => t !== token);
+        await user.save();
+        return res.status(200).send("Logged out successfully");
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
 };
 
 const refresh = (req: Request, res: Response) => {
@@ -110,6 +128,7 @@ const refresh = (req: Request, res: Response) => {
         process.env.REFRESH_TOKEN_SECRET,
         async (err, userInfo: { _id: string; jti: string }) => {
             if (err) {
+                console.log(err);
                 return res.status(401).send("invalid token");
             }
             try {
@@ -123,6 +142,7 @@ const refresh = (req: Request, res: Response) => {
                         user.tokens = [];
                         await user.save();
                     }
+                    console.log("Invalid token");
                     return res.status(401).send("Invalid token");
                 }
                 // generate new access token and refresh token
@@ -131,16 +151,16 @@ const refresh = (req: Request, res: Response) => {
                 );
                 // save the refresh token in the database
                 user.tokens = user.tokens.filter(
-                    (token) => token != refreshToken
+                    (token) => token != origRefreshToken
                 );
                 user.tokens.push(refreshToken);
+                await user.save();
                 // return the new access token and new refresh token
                 return res.status(200).send({
                     accessToken: accessToken,
                     refreshToken: refreshToken,
                 });
             } catch (err) {
-                console.log(err);
                 res.status(403).send(err.message);
             }
         }

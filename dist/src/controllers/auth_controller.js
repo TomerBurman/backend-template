@@ -33,6 +33,9 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const newUser = yield user_model_1.default.create({
             email: email,
             password: hashedPassword,
+            name: req.body.name,
+            bio: req.body.bio,
+            image: req.body.image,
         });
         return res.status(200).send(newUser);
     }
@@ -84,6 +87,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             accessToken: accessToken,
             refreshToken: refreshToken,
             name: user.name,
+            userId: user._id,
         });
     }
     catch (err) {
@@ -102,9 +106,12 @@ const refresh = (req, res) => {
     if (origRefreshToken == null) {
         return res.status(401).send("Missing token");
     }
+    console.log(origRefreshToken);
+    console.log(process.env.REFRESH_TOKEN_SECRET);
     // verify token
     jsonwebtoken_1.default.verify(origRefreshToken, process.env.REFRESH_TOKEN_SECRET, (err, userInfo) => __awaiter(void 0, void 0, void 0, function* () {
         if (err) {
+            console.log(err);
             return res.status(401).send("invalid token");
         }
         try {
@@ -116,13 +123,15 @@ const refresh = (req, res) => {
                     user.tokens = [];
                     yield user.save();
                 }
+                console.log("Invalid token");
                 return res.status(401).send("Invalid token");
             }
             // generate new access token and refresh token
             const { accessToken, refreshToken } = generateToken(user._id.toString());
             // save the refresh token in the database
-            user.tokens = user.tokens.filter((token) => token != refreshToken);
+            user.tokens = user.tokens.filter((token) => token != origRefreshToken);
             user.tokens.push(refreshToken);
+            yield user.save();
             // return the new access token and new refresh token
             return res.status(200).send({
                 accessToken: accessToken,
@@ -130,7 +139,6 @@ const refresh = (req, res) => {
             });
         }
         catch (err) {
-            console.log(err);
             res.status(403).send(err.message);
         }
     }));

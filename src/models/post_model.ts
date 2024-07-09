@@ -5,19 +5,20 @@ import mongoose from "mongoose";
  */
 export interface IPost {
     title: string;
-    ingridients: string[];
+    ingredients: string[];
     description: string;
     steps: string[];
     owner: string;
     images: string[];
     ownerName: string;
+    savedUsers: string[];
 }
 const postSchema = new mongoose.Schema<IPost>({
     title: {
         type: String,
         required: true,
     },
-    ingridients: {
+    ingredients: {
         type: [String],
         required: true,
     },
@@ -35,6 +36,7 @@ const postSchema = new mongoose.Schema<IPost>({
     },
     images: { type: [String] },
     ownerName: { type: String },
+    savedUsers: { type: [String] },
 });
 
 export default mongoose.model<IPost>("Post", postSchema);

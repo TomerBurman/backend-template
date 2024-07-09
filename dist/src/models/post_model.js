@@ -9,7 +9,15 @@ const postSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
-    message: {
+    ingredients: {
+        type: [String],
+        required: true,
+    },
+    steps: {
+        type: [String],
+        required: true,
+    },
+    description: {
         type: String,
         required: true,
     },
@@ -17,6 +25,9 @@ const postSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    images: { type: [String] },
+    ownerName: { type: String },
+    savedUsers: { type: [String] },
 });
 exports.default = mongoose_1.default.model("Post", postSchema);
 //# sourceMappingURL=post_model.js.map

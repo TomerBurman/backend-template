@@ -43,23 +43,25 @@ export default class BaseController<ModelType> {
 
     // Finds a student by their ID and updates values
     async put(req: Request, res: Response) {
-        console.log(req.body);
         try {
+            console.log(req.body);
             const { _id, ...updatedFields } = req.body;
             if (_id) {
                 delete updatedFields._id;
             }
             const item = await this.model.findOneAndUpdate(
-                { _id: req.params.id },
+                { _id: req.body._id },
                 updatedFields,
                 {
-                    new: true,
+                    returnDocumentnew: true,
                 }
             );
             if (item) {
+                console.log(item);
                 res.status(200).send(item);
             } else {
-                res.status(404).send("Student not found");
+                console.log("Record not found");
+                res.status(404).send("Record not found");
             }
         } catch (error) {
             console.log(error);

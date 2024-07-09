@@ -26,16 +26,10 @@ class BaseController {
     }
     get(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Get students");
+            console.log("Get all items");
             try {
-                if (req.query.name) {
-                    const item = yield this.model.find({ name: req.query.name });
-                    return res.status(200).send(item);
-                }
-                else {
-                    const item = yield this.model.find();
-                    return res.status(200).send(item);
-                }
+                const items = yield this.model.find();
+                return res.status(200).send(items);
             }
             catch (error) {
                 return res.status(400).send(error.message);
@@ -64,7 +58,7 @@ class BaseController {
             console.log(req.body);
             try {
                 const item = yield this.model.create(req.body);
-                console.log(item);
+                console.log(item + "This is the item");
                 res.status(201).send(item);
             }
             catch (error) {
@@ -76,20 +70,22 @@ class BaseController {
     // Finds a student by their ID and updates values
     put(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
             try {
+                console.log(req.body);
                 const _a = req.body, { _id } = _a, updatedFields = __rest(_a, ["_id"]);
                 if (_id) {
                     delete updatedFields._id;
                 }
-                const item = yield this.model.findOneAndUpdate({ _id: req.params.id }, updatedFields, {
-                    new: true,
+                const item = yield this.model.findOneAndUpdate({ _id: req.body._id }, updatedFields, {
+                    returnDocumentnew: true,
                 });
                 if (item) {
+                    console.log(item);
                     res.status(200).send(item);
                 }
                 else {
-                    res.status(404).send("Student not found");
+                    console.log("Record not found");
+                    res.status(404).send("Record not found");
                 }
             }
             catch (error) {

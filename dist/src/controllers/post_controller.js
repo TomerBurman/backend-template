@@ -23,8 +23,22 @@ class PostController extends base_controller_1.default {
             post: { get: () => super.post }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            req.body.owner = req.body.user._id;
-            _super.post.call(this, req, res);
+            console.log("I got here");
+            const { post, user } = req.body;
+            console.log(req.body);
+            post.owner = user._id;
+            req.body = post;
+            return _super.post.call(this, req, res);
+        });
+    }
+    put(req, res) {
+        const _super = Object.create(null, {
+            put: { get: () => super.put }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            req.body = Object.assign(Object.assign({}, req.body.post), { _id: req.body.post._id });
+            console.log(req.body);
+            _super.put.call(this, req, res);
         });
     }
 }

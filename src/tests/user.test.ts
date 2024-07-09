@@ -2,7 +2,6 @@ import request from "supertest";
 import appInit from "../App";
 import mongoose from "mongoose";
 import { Express } from "express";
-import Post from "../models/post_model";
 import User from "../models/user_model";
 
 let app: Express;
@@ -15,30 +14,20 @@ const user = {
     image: "test_image.png",
 };
 
-const post = {
-    title: "Test Post",
-    ingredients: ["ingredient1", "ingredient2"],
-    description: "This is a test description",
-    steps: ["step1", "step2"],
-    images: ["image1.png", "image2.png"],
-    ownerName: "Test User",
-    savedUsers: [],
-};
-
 let accessToken = "";
-let postId = "";
+let userId = "";
 
 beforeAll(async () => {
     app = await appInit();
     console.log("beforeAll");
     await User.deleteMany({ email: user.email });
-    await Post.deleteMany({ title: post.title });
 
     // Register and login the user to get the access token
     await request(app).post("/auth/register").send(user);
     const res = await request(app).post("/auth/login").send(user);
     accessToken = res.body.accessToken;
-    console.log(res.body.accessToken);
+    const userRes = await User.findOne({ email: user.email });
+    userId = userRes._id.toString();
 });
 
 afterAll(async () => {
@@ -46,52 +35,41 @@ afterAll(async () => {
     await mongoose.connection.close();
 });
 
-describe("PostController", () => {
-    test("Get all posts", async () => {
+describe("UserController", () => {
+    test("Get all users", async () => {
         const res = await request(app)
-            .get("/post")
+            .get("/user")
             .set("Authorization", "Bearer " + accessToken);
         expect(res.statusCode).toBe(200);
         expect(res.body).toBeInstanceOf(Array);
     });
 
-    test("Create a new post", async () => {
+    test("Get user by ID", async () => {
         const res = await request(app)
-            .post("/post")
-            .set("Authorization", "Bearer " + accessToken)
-            .send({ post, user });
-        expect(res.statusCode).toBe(201);
-        expect(res.body.title).toBe(post.title);
-        postId = res.body._id;
-    });
-
-    test("Get post by ID", async () => {
-        const res = await request(app)
-            .get(`/post/${postId}`)
+            .get(`/user/${userId}`)
             .set("Authorization", "Bearer " + accessToken);
         expect(res.statusCode).toBe(200);
-        expect(res.body._id).toBe(postId);
+        expect(res.body._id).toBe(userId);
+        expect(res.body.email).toBe(user.email);
+        expect(res.body.name).toBe(user.name);
     });
 
-    test("Update a post", async () => {
-        const updatedPost = {
-            ...post,
-            title: "Updated Test Post",
-            _id: postId,
-        };
+    test("Update a user", async () => {
+        const updatedUser = { ...user, name: "Updated Test User", _id: userId };
         const res = await request(app)
-            .put("/post")
+            .put("/user")
             .set("Authorization", "Bearer " + accessToken)
-            .send({ post: updatedPost });
+            .send({ user: updatedUser });
         expect(res.statusCode).toBe(200);
     });
-    test("Delete a post", async () => {
+
+    test("Delete a user", async () => {
         const res = await request(app)
-            .delete(`/post/${postId}`)
+            .delete(`/user/${userId}`)
             .set("Authorization", "Bearer " + accessToken);
         expect(res.statusCode).toBe(200);
         const resGet = await request(app)
-            .get(`/post/${postId}`)
+            .get(`/user/${userId}`)
             .set("Authorization", "Bearer " + accessToken);
         expect(resGet.statusCode).toBe(404);
     });
