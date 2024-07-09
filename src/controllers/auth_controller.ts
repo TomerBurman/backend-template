@@ -116,23 +116,26 @@ const logout = async (req: Request, res: Response) => {
 };
 
 const refresh = (req: Request, res: Response) => {
-    //extract token from http header
+    // Extract token from the HTTP header
     const authHeader = req.headers["authorization"];
+    console.log("Received refresh request");
     const origRefreshToken = authHeader && authHeader.split(" ")[1];
+    console.log("Original Refresh Token:", origRefreshToken);
     if (origRefreshToken == null) {
         return res.status(401).send("Missing token");
     }
-    // verify token
+    // Verify token
     jwt.verify(
         origRefreshToken,
         process.env.REFRESH_TOKEN_SECRET,
         async (err, userInfo: { _id: string; jti: string }) => {
             if (err) {
-                console.log(err);
-                return res.status(401).send("invalid token");
+                console.log("Token verification error:", err);
+                return res.status(401).send("Invalid token");
             }
             try {
                 const user = await User.findById(userInfo._id);
+                console.log(user);
                 if (
                     user == null ||
                     user.tokens == null ||
@@ -142,25 +145,28 @@ const refresh = (req: Request, res: Response) => {
                         user.tokens = [];
                         await user.save();
                     }
-                    console.log("Invalid token");
+                    console.log(
+                        "Invalid token: User not found or token not valid"
+                    );
                     return res.status(401).send("Invalid token");
                 }
-                // generate new access token and refresh token
+                // Generate new access token and refresh token
                 const { accessToken, refreshToken } = generateToken(
                     user._id.toString()
                 );
-                // save the refresh token in the database
+                // Save the refresh token in the database
                 user.tokens = user.tokens.filter(
                     (token) => token != origRefreshToken
                 );
                 user.tokens.push(refreshToken);
                 await user.save();
-                // return the new access token and new refresh token
+                // Return the new access token and new refresh token
                 return res.status(200).send({
                     accessToken: accessToken,
                     refreshToken: refreshToken,
                 });
             } catch (err) {
+                console.log("Error while saving new token:", err);
                 res.status(403).send(err.message);
             }
         }

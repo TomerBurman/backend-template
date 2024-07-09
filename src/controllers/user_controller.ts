@@ -22,27 +22,26 @@ class UserController extends BaseController<IUser> {
     async put(req: Request, res: Response) {
         try {
             console.log(req.body, "This is the request");
-            const { user, password } = req.body;
+            const { connectedUser, password } = req.body;
 
             if (password) {
                 const salt = await bcrypt.genSalt(10);
-                user.password = await bcrypt.hash(password, salt);
+                connectedUser.password = await bcrypt.hash(password, salt);
             }
 
-            const { _id, ...updatedFields } = user;
+            const { _id, ...updatedFields } = connectedUser;
             if (_id) {
                 delete updatedFields._id;
             }
-            console.log(updatedFields);
+            console.log(updatedFields, "These are updated fields");
             const updatedUser = await User.findOneAndUpdate(
-                { _id: req.body.user._id },
+                { _id: req.body.connectedUser._id },
                 updatedFields,
                 {
                     new: true, // Return the updated document
                 }
             );
             if (updatedUser) {
-                console.log(updatedUser);
                 res.status(200).send(updatedUser);
             } else {
                 console.log("User not found");
